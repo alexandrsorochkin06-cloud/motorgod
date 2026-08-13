@@ -14,7 +14,6 @@ export function WindingUnwrap({ result }: Props) {
   const rowGap = 48
   const height = Math.max(260, coils.length * rowGap + 90)
   const byNumber = useMemo(() => new Map(coils.map((coil) => [coil.number, coil])), [coils])
-
   const selectedCoil = selected === null ? null : byNumber.get(selected)
 
   return (
@@ -29,7 +28,7 @@ export function WindingUnwrap({ result }: Props) {
       </div>
 
       {selectedCoil && (
-        <div className="unwrap-selected" style={{ position: 'relative', zIndex: 10, margin: '10px 0 12px', padding: '10px 12px', display: 'flex', flexWrap: 'wrap', gap: '6px 14px', alignItems: 'center', background: '#0b0f15', border: '1px solid #394454', borderRadius: 10, boxSizing: 'border-box' }}>
+        <div className="unwrap-selected" style={{ position: 'relative', zIndex: 10, margin: '10px 0 12px', padding: '10px 12px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '6px 14px', alignItems: 'center', background: '#0b0f15', border: '1px solid #394454', borderRadius: 10, boxSizing: 'border-box' }}>
           <strong>Катушка №{selectedCoil.number}</strong>
           <span>Пазы: {selectedCoil.sideA} → {selectedCoil.sideB}</span>
           <span>Фаза: {selectedCoil.phase} {selectedCoil.polarity}</span>
