@@ -27,7 +27,7 @@ export function WindingUnwrap({ result }: Props) {
           <div className="slot-axis">{Array.from({ length: maxSlot }, (_, index) => <div key={index + 1} className="unwrap-slot" style={{ left: 20 + index * 42 }}><span>{index + 1}</span><i /></div>)}</div>
           <svg className="unwrap-svg" width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-label="Развёртка обмотки">
             {coils.map((coil: Coil, index) => {
-              const x1 = 20 + (coil.slotA - 1) * 42, x2 = 20 + (coil.slotB - 1) * 42, y = 70 + index * rowGap
+              const x1 = 20 + (coil.sideA - 1) * 42, x2 = 20 + (coil.sideB - 1) * 42, y = 70 + index * rowGap
               const color = palette[(coil.number - 1) % palette.length], active = selected === coil.number, dimmed = selected !== null && !active, mid = (x1 + x2) / 2
               return <g key={coil.number} onClick={() => setSelected(coil.number)} className="unwrap-coil" opacity={dimmed ? .18 : 1}>
                 <path d={`M ${x1} ${y} Q ${mid} ${y - 28} ${x2} ${y}`} fill="none" stroke={color} strokeWidth={active ? 9 : 6} strokeLinecap="round" />
@@ -37,7 +37,7 @@ export function WindingUnwrap({ result }: Props) {
               </g>
             })}
           </svg>
-          {selected !== null && (() => { const coil = byNumber.get(selected); if (!coil) return null; return <div className="unwrap-selected"><strong>Катушка №{coil.number}</strong><span>Пазы: {coil.slotA} → {coil.slotB}</span><span>Фаза: {coil.phase} {coil.polarity}</span><span>Группа: {coil.phase}{coil.polarity}</span></div> })()}
+          {selected !== null && (() => { const coil = byNumber.get(selected); if (!coil) return null; return <div className="unwrap-selected"><strong>Катушка №{coil.number}</strong><span>Пазы: {coil.sideA} → {coil.sideB}</span><span>Фаза: {coil.phase} {coil.polarity}</span><span>Группа: {coil.phase}{coil.polarity}</span></div> })()}
         </div>
       </div>
       <p className="diagram-note">Нажмите на катушку — остальные соединения затемнятся.</p>
