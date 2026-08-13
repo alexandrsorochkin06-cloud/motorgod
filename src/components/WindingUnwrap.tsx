@@ -51,16 +51,16 @@ export function WindingUnwrap({ result }: Props) {
               const dimmed = selected !== null && !active
               const mid = (x1 + x2) / 2
               const thickness = active ? 8 : 5
+              const top = y - 12
+              const bottom = y + 12
               return (
                 <g key={coil.number} onClick={() => setSelected(coil.number)} className="unwrap-coil" opacity={dimmed ? .16 : 1} style={{ cursor: 'pointer', touchAction: 'manipulation' }}>
-                  {/* First and second coil sides are drawn as two parallel legs. */}
-                  <path d={`M ${x1} ${y - 7} Q ${mid} ${y - 34} ${x2} ${y - 7}`} fill="none" stroke={color} strokeWidth={thickness} strokeLinecap="round" />
-                  <path d={`M ${x1} ${y + 7} Q ${mid} ${y + 34} ${x2} ${y + 7}`} fill="none" stroke={color} strokeWidth={thickness} strokeLinecap="round" />
-                  <line x1={x1} y1={y - 7} x2={x1} y2={y + 7} stroke={color} strokeWidth={thickness} strokeLinecap="round" />
-                  <line x1={x2} y1={y - 7} x2={x2} y2={y + 7} stroke={color} strokeWidth={thickness} strokeLinecap="round" />
-                  <circle cx={x1} cy={y} r={active ? 8 : 6} fill={color} />
-                  <circle cx={x2} cy={y} r={active ? 8 : 6} fill={color} />
-                  <rect x={mid - 28} y={y - 11} width="56" height="22" rx="7" fill="#0b0f15" stroke={color} />
+                  {/* Straight rectangular schematic: both sides start directly at their slot lines. */}
+                  <line x1={x1} y1={top} x2={x1} y2={bottom} stroke={color} strokeWidth={thickness} strokeLinecap="square" />
+                  <line x1={x1} y1={top} x2={x2} y2={top} stroke={color} strokeWidth={thickness} strokeLinecap="square" />
+                  <line x1={x1} y1={bottom} x2={x2} y2={bottom} stroke={color} strokeWidth={thickness} strokeLinecap="square" />
+                  <line x1={x2} y1={top} x2={x2} y2={bottom} stroke={color} strokeWidth={thickness} strokeLinecap="square" />
+                  <rect x={mid - 28} y={y - 11} width="56" height="22" rx="3" fill="#0b0f15" stroke={color} strokeWidth="1.5" />
                   <text x={mid} y={y + 4} className="unwrap-label">К{coil.number}</text>
                 </g>
               )
@@ -68,7 +68,7 @@ export function WindingUnwrap({ result }: Props) {
           </svg>
         </div>
       </div>
-      <p className="diagram-note">Нажмите на катушку — её две стороны выделятся, остальные соединения затемнятся.</p>
+      <p className="diagram-note">Нажмите на катушку — её прямоугольная секция выделится, остальные соединения затемнятся.</p>
     </section>
   )
 }
