@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
-
 :root { font-family: Inter, system-ui, sans-serif; color: #eef2f7; background: #090b10; font-synthesis: none; }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -39,10 +38,13 @@ label { display: grid; gap: 8px; color: #8791a0; font-size: 11px; font-weight: 6
 input { width: 100%; border: 1px solid #2a313d; border-radius: 9px; outline: none; background: #0a0d12; color: #eef2f7; padding: 13px 12px; transition: border-color .18s; }
 input:focus { border-color: #697688; }
 .full { width: 100%; margin-top: 20px; }
-.result-panel { display: grid; gap: 10px; margin-top: 22px; padding: 18px; border: 1px solid #2b3340; border-radius: 11px; background: #0a0d12; }
+.result-panel { display: grid; gap: 12px; margin-top: 22px; padding: 18px; border: 1px solid #2b3340; border-radius: 11px; background: #0a0d12; }
 .result-panel div { display: grid; gap: 6px; }
-.result-panel span, .result-panel small { color: #7d8796; font-size: 11px; }
+.result-panel span, .result-panel small { color: #7d8796; font-size: 11px; line-height: 1.55; }
 .result-panel strong { font-size: 15px; }
+.warnings { margin-top: 4px; padding-top: 12px; border-top: 1px solid #202632; }
+.warnings small { display: block; margin-top: 7px; }
+.error-panel { border-color: #4b3333; }
 footer { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 0 0 30px; color: #515b69; font-size: 11px; }
 @media (max-width: 760px) { .topbar { width: min(100% - 22px, 1180px); } main, footer { width: min(100% - 22px, 1180px); } .hero { padding: 68px 0 60px; } .feature-grid { grid-template-columns: 1fr; } .feature-grid article, .feature-grid article:first-child { padding: 22px 0; border-right: 0; border-bottom: 1px solid #202632; } .feature-grid article:last-child { border-bottom: 0; } .feature-grid h2 { margin-top: 18px; } .form-grid { grid-template-columns: 1fr; } .section-heading { align-items: flex-start; flex-direction: column; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; } }
