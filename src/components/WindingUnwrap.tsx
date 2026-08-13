@@ -11,8 +11,8 @@ export function WindingUnwrap({ result }: Props) {
   const maxSlot = result.slotTable.length
   const step = result.coilPitch
   const width = Math.max(760, maxSlot * 42 + 40)
-  const rowGap = 48
-  const height = Math.max(260, coils.length * rowGap + 90)
+  const rowGap = 58
+  const height = Math.max(300, coils.length * rowGap + 100)
   const byNumber = useMemo(() => new Map(coils.map((coil) => [coil.number, coil])), [coils])
   const selectedCoil = selected === null ? null : byNumber.get(selected)
 
@@ -23,16 +23,16 @@ export function WindingUnwrap({ result }: Props) {
         <span className="status-dot">{coils.length} КАТУШЕК · ШАГ {step}</span>
       </div>
       <div className="unwrap-toolbar">
-        <span>Физическая укладка катушек по пазам.</span>
+        <span>Каждая цветная фигура — одна катушка с двумя сторонами.</span>
         {selected !== null && <button className="secondary-button" onClick={() => setSelected(null)}>Снять выбор</button>}
       </div>
 
       {selectedCoil && (
         <div className="unwrap-selected" style={{ position: 'relative', zIndex: 10, margin: '10px 0 12px', padding: '10px 12px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '6px 14px', alignItems: 'center', background: '#0b0f15', border: '1px solid #394454', borderRadius: 10, boxSizing: 'border-box' }}>
           <strong>Катушка №{selectedCoil.number}</strong>
-          <span>Пазы: {selectedCoil.sideA} → {selectedCoil.sideB}</span>
+          <span>Сторона 1: паз {selectedCoil.sideA}</span>
+          <span>Сторона 2: паз {selectedCoil.sideB}</span>
           <span>Фаза: {selectedCoil.phase} {selectedCoil.polarity}</span>
-          <span>Группа: {selectedCoil.phase}{selectedCoil.polarity}</span>
         </div>
       )}
 
@@ -43,19 +43,32 @@ export function WindingUnwrap({ result }: Props) {
           </div>
           <svg className="unwrap-svg" style={{ position: 'absolute', left: 0, top: 0, zIndex: 2, display: 'block' }} width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-label="Развёртка обмотки">
             {coils.map((coil: Coil, index) => {
-              const x1 = 20 + (coil.sideA - 1) * 42, x2 = 20 + (coil.sideB - 1) * 42, y = 70 + index * rowGap
-              const color = palette[(coil.number - 1) % palette.length], active = selected === coil.number, dimmed = selected !== null && !active, mid = (x1 + x2) / 2
-              return <g key={coil.number} onClick={() => setSelected(coil.number)} className="unwrap-coil" opacity={dimmed ? .18 : 1} style={{ cursor: 'pointer', touchAction: 'manipulation' }}>
-                <path d={`M ${x1} ${y} Q ${mid} ${y - 28} ${x2} ${y}`} fill="none" stroke={color} strokeWidth={active ? 9 : 6} strokeLinecap="round" />
-                <circle cx={x1} cy={y} r={active ? 7 : 5} fill={color} /><circle cx={x2} cy={y} r={active ? 7 : 5} fill={color} />
-                <rect x={mid - 33} y={y - 34} width="66" height="20" rx="6" fill="#0b0f15" stroke={color} />
-                <text x={mid} y={y - 20} className="unwrap-label">К{coil.number}</text>
-              </g>
+              const x1 = 20 + (coil.sideA - 1) * 42
+              const x2 = 20 + (coil.sideB - 1) * 42
+              const y = 72 + index * rowGap
+              const color = palette[(coil.number - 1) % palette.length]
+              const active = selected === coil.number
+              const dimmed = selected !== null && !active
+              const mid = (x1 + x2) / 2
+              const thickness = active ? 8 : 5
+              return (
+                <g key={coil.number} onClick={() => setSelected(coil.number)} className="unwrap-coil" opacity={dimmed ? .16 : 1} style={{ cursor: 'pointer', touchAction: 'manipulation' }}>
+                  {/* First and second coil sides are drawn as two parallel legs. */}
+                  <path d={`M ${x1} ${y - 7} Q ${mid} ${y - 34} ${x2} ${y - 7}`} fill="none" stroke={color} strokeWidth={thickness} strokeLinecap="round" />
+                  <path d={`M ${x1} ${y + 7} Q ${mid} ${y + 34} ${x2} ${y + 7}`} fill="none" stroke={color} strokeWidth={thickness} strokeLinecap="round" />
+                  <line x1={x1} y1={y - 7} x2={x1} y2={y + 7} stroke={color} strokeWidth={thickness} strokeLinecap="round" />
+                  <line x1={x2} y1={y - 7} x2={x2} y2={y + 7} stroke={color} strokeWidth={thickness} strokeLinecap="round" />
+                  <circle cx={x1} cy={y} r={active ? 8 : 6} fill={color} />
+                  <circle cx={x2} cy={y} r={active ? 8 : 6} fill={color} />
+                  <rect x={mid - 28} y={y - 11} width="56" height="22" rx="7" fill="#0b0f15" stroke={color} />
+                  <text x={mid} y={y + 4} className="unwrap-label">К{coil.number}</text>
+                </g>
+              )
             })}
           </svg>
         </div>
       </div>
-      <p className="diagram-note">Нажмите на катушку — остальные соединения затемнятся.</p>
+      <p className="diagram-note">Нажмите на катушку — её две стороны выделятся, остальные соединения затемнятся.</p>
     </section>
   )
 }
