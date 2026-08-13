@@ -15,13 +15,28 @@ export function WindingUnwrap({ result }: Props) {
   const height = Math.max(260, coils.length * rowGap + 90)
   const byNumber = useMemo(() => new Map(coils.map((coil) => [coil.number, coil])), [coils])
 
+  const selectedCoil = selected === null ? null : byNumber.get(selected)
+
   return (
     <section className="unwrap-panel" style={{ overflow: 'hidden' }}>
       <div className="section-heading compact">
         <div><span className="eyebrow">WINDING LAYOUT</span><h3>Развёртка обмотки</h3></div>
         <span className="status-dot">{coils.length} КАТУШЕК · ШАГ {step}</span>
       </div>
-      <div className="unwrap-toolbar"><span>Физическая укладка катушек по пазам.</span>{selected !== null && <button className="secondary-button" onClick={() => setSelected(null)}>Снять выбор</button>}</div>
+      <div className="unwrap-toolbar">
+        <span>Физическая укладка катушек по пазам.</span>
+        {selected !== null && <button className="secondary-button" onClick={() => setSelected(null)}>Снять выбор</button>}
+      </div>
+
+      {selectedCoil && (
+        <div className="unwrap-selected" style={{ position: 'relative', zIndex: 10, margin: '10px 0 12px', padding: '10px 12px', display: 'flex', flexWrap: 'wrap', gap: '6px 14px', alignItems: 'center', background: '#0b0f15', border: '1px solid #394454', borderRadius: 10, boxSizing: 'border-box' }}>
+          <strong>Катушка №{selectedCoil.number}</strong>
+          <span>Пазы: {selectedCoil.sideA} → {selectedCoil.sideB}</span>
+          <span>Фаза: {selectedCoil.phase} {selectedCoil.polarity}</span>
+          <span>Группа: {selectedCoil.phase}{selectedCoil.polarity}</span>
+        </div>
+      )}
+
       <div className="unwrap-scroll" style={{ width: '100%', overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch', touchAction: 'pan-x', overscrollBehaviorX: 'contain' }}>
         <div className="unwrap-canvas" style={{ position: 'relative', width, minWidth: width, minHeight: height }}>
           <div className="slot-axis" style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none' }}>
@@ -39,7 +54,6 @@ export function WindingUnwrap({ result }: Props) {
               </g>
             })}
           </svg>
-          {selected !== null && (() => { const coil = byNumber.get(selected); if (!coil) return null; return <div className="unwrap-selected"><strong>Катушка №{coil.number}</strong><span>Пазы: {coil.sideA} → {coil.sideB}</span><span>Фаза: {coil.phase} {coil.polarity}</span><span>Группа: {coil.phase}{coil.polarity}</span></div> })()}
         </div>
       </div>
       <p className="diagram-note">Нажмите на катушку — остальные соединения затемнятся.</p>
