@@ -69,7 +69,7 @@ export function WindingUnwrap({ result }: Props) {
               const selectedSide = selectedCoil && (selectedCoil.sideA === slot || selectedCoil.sideB === slot)
               return (
                 <g key={slot} opacity={selected !== null && !selectedSide ? .28 : 1}>
-                  <line x1={x} y1={32} x2={x} y2={height - 22} stroke={color} strokeWidth={selectedSide ? 4 : 2.5} />
+                  <line x1={x} y1={32} x2={x} y2={height - 22} stroke={color} strokeWidth={selectedSide ? 4 : 2.5} opacity={0.28} />
                   <text x={x} y={18} textAnchor="middle" fontSize="13" fontWeight={selectedSide ? 800 : 600} fill={selectedSide ? color : '#eef2f7'}>{slot}</text>
                 </g>
               )
@@ -93,9 +93,9 @@ export function WindingUnwrap({ result }: Props) {
                     const labelX = (x1 + x2) / 2
                     return (
                       <g key={coil.number} onClick={() => setSelected(coil.number)} opacity={active || selected === null ? 1 : .18} style={{ cursor: 'pointer', touchAction: 'manipulation' }}>
-                        <line x1={x1} y1={32} x2={x1} y2={y} stroke={color} strokeWidth={lineWidth} />
+                        <line x1={x1} y1={y - 14} x2={x1} y2={y} stroke={color} strokeWidth={lineWidth} />
                         <line x1={x1} y1={y} x2={x2} y2={y} stroke={color} strokeWidth={lineWidth} />
-                        <line x1={x2} y1={y} x2={x2} y2={y + 18} stroke={color} strokeWidth={lineWidth} />
+                        <line x1={x2} y1={y} x2={x2} y2={y + 14} stroke={color} strokeWidth={lineWidth} />
                         <rect x={labelX - 15} y={y - 10} width="30" height="20" rx="3" fill="#0b0f15" stroke={active ? color : 'none'} />
                         <text x={labelX} y={y + 5} textAnchor="middle" fontSize="12" fontWeight="800" fill={color}>К{coil.number}</text>
                       </g>
@@ -107,7 +107,7 @@ export function WindingUnwrap({ result }: Props) {
           </svg>
         </div>
       </div>
-      <p className="diagram-note">Г1, Г2 и т. д. — фазные группы. Цвет показывает фазу, знак +/− — полярность. Нажмите на катушку для точной подсветки.</p>
+      <p className="diagram-note">Г1, Г2 и т. д. — фазные группы. Цвет показывает фазу, знак +/− — полярность. Вертикальные отводы катушек заканчиваются на уровне своей группы.</p>
     </section>
   )
 }
