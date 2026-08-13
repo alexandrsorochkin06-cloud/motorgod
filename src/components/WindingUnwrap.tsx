@@ -11,12 +11,32 @@ export function WindingUnwrap({ result }: Props) {
   const maxSlot = result.slotTable.length
   const step = result.coilPitch
   const slotGap = 42
-  const left = 20
-  const width = Math.max(760, maxSlot * slotGap + 40)
-  const rowGap = 58
-  const height = Math.max(300, coils.length * rowGap + 120)
+  const left = 34
+  const width = Math.max(760, maxSlot * slotGap + 54)
+  const groupGap = 88
+  const laneStep = 18
   const byNumber = useMemo(() => new Map(coils.map((coil) => [coil.number, coil])), [coils])
   const selectedCoil = selected === null ? null : byNumber.get(selected)
+  const groupByCoil = useMemo(() => {
+    const map = new Map<number, { index: number; label: string }>()
+    result.phaseGroups.forEach((group, index) => {
+      group.coils.forEach((number) => map.set(number, { index, label: `Г${index + 1} · ${group.phase}${group.polarity}` }))
+    })
+    return map
+  }, [result.phaseGroups])
+  const groupMembers = useMemo(() => {
+    const map = new Map<number, Coil[]>()
+    coils.forEach((coil) => {
+      const group = groupByCoil.get(coil.number)
+      if (!group) return
+      const list = map.get(group.index) ?? []
+      list.push(coil)
+      map.set(group.index, list)
+    })
+    return map
+  }, [coils, groupByCoil])
+  const maxGroupSize = Math.max(1, ...Array.from(groupMembers.values()).map((items) => items.length))
+  const height = Math.max(320, 76 + result.phaseGroups.length * groupGap + maxGroupSize * laneStep + 60)
 
   return (
     <section className="unwrap-panel" style={{ overflow: 'hidden' }}>
@@ -25,7 +45,7 @@ export function WindingUnwrap({ result }: Props) {
         <span className="status-dot">{coils.length} КАТУШЕК · ШАГ {step}</span>
       </div>
       <div className="unwrap-toolbar">
-        <span>Схема укладки: вертикальные пазы и горизонтальные участки катушек.</span>
+        <span>Катушки сгруппированы по фазе и полярности.</span>
         {selected !== null && <button className="secondary-button" onClick={() => setSelected(null)}>Снять выбор</button>}
       </div>
 
@@ -34,6 +54,7 @@ export function WindingUnwrap({ result }: Props) {
           <strong>Катушка №{selectedCoil.number}</strong>
           <span>Паз {selectedCoil.sideA} → паз {selectedCoil.sideB}</span>
           <span>Фаза: {selectedCoil.phase} {selectedCoil.polarity}</span>
+          <span>{groupByCoil.get(selectedCoil.number)?.label ?? 'Группа не определена'}</span>
         </div>
       )}
 
@@ -54,32 +75,39 @@ export function WindingUnwrap({ result }: Props) {
               )
             })}
 
-            {coils.map((coil: Coil, index) => {
-              const x1 = left + (coil.sideA - 1) * slotGap
-              const x2 = left + (coil.sideB - 1) * slotGap
-              const y = 58 + index * rowGap
-              const color = phaseColors[coil.phase] ?? '#8b95a5'
-              const active = selected === coil.number
-              const dimmed = selected !== null && !active
-              const lineWidth = active ? 5 : 3
-              const direction = coil.sideB >= coil.sideA ? 1 : -1
-              const branchY = y + (direction > 0 ? 0 : 20)
-              const labelX = (x1 + x2) / 2
-
+            {result.phaseGroups.map((group, groupIndex) => {
+              const members = groupMembers.get(groupIndex) ?? []
+              const color = phaseColors[group.phase] ?? '#8b95a5'
+              const groupDimmed = selected !== null && !members.some((coil) => coil.number === selected)
+              const baseY = 56 + groupIndex * groupGap
               return (
-                <g key={coil.number} onClick={() => setSelected(coil.number)} opacity={dimmed ? .16 : 1} style={{ cursor: 'pointer', touchAction: 'manipulation' }}>
-                  <line x1={x1} y1={32} x2={x1} y2={branchY} stroke={color} strokeWidth={lineWidth} />
-                  <line x1={x1} y1={branchY} x2={x2} y2={branchY} stroke={color} strokeWidth={lineWidth} />
-                  <line x1={x2} y1={branchY} x2={x2} y2={branchY + 18} stroke={color} strokeWidth={lineWidth} />
-                  <rect x={labelX - 15} y={branchY - 10} width="30" height="20" rx="3" fill="#0b0f15" />
-                  <text x={labelX} y={branchY + 5} textAnchor="middle" fontSize="12" fontWeight="800" fill={color}>К{coil.number}</text>
+                <g key={`${group.phase}${group.polarity}-${groupIndex}`} opacity={groupDimmed ? .22 : 1}>
+                  <rect x="4" y={baseY - 12} width="26" height="22" rx="4" fill="#0b0f15" stroke={color} />
+                  <text x="17" y={baseY + 4} textAnchor="middle" fontSize="11" fontWeight="800" fill={color}>Г{groupIndex + 1}</text>
+                  {members.map((coil, localIndex) => {
+                    const x1 = left + (coil.sideA - 1) * slotGap
+                    const x2 = left + (coil.sideB - 1) * slotGap
+                    const y = baseY + localIndex * laneStep
+                    const active = selected === coil.number
+                    const lineWidth = active ? 5 : 3
+                    const labelX = (x1 + x2) / 2
+                    return (
+                      <g key={coil.number} onClick={() => setSelected(coil.number)} opacity={active || selected === null ? 1 : .18} style={{ cursor: 'pointer', touchAction: 'manipulation' }}>
+                        <line x1={x1} y1={32} x2={x1} y2={y} stroke={color} strokeWidth={lineWidth} />
+                        <line x1={x1} y1={y} x2={x2} y2={y} stroke={color} strokeWidth={lineWidth} />
+                        <line x1={x2} y1={y} x2={x2} y2={y + 18} stroke={color} strokeWidth={lineWidth} />
+                        <rect x={labelX - 15} y={y - 10} width="30" height="20" rx="3" fill="#0b0f15" stroke={active ? color : 'none'} />
+                        <text x={labelX} y={y + 5} textAnchor="middle" fontSize="12" fontWeight="800" fill={color}>К{coil.number}</text>
+                      </g>
+                    )
+                  })}
                 </g>
               )
             })}
           </svg>
         </div>
       </div>
-      <p className="diagram-note">Катушка показана как схематическая укладка: стороны привязаны непосредственно к пазам. Нажмите на неё для выделения.</p>
+      <p className="diagram-note">Г1, Г2 и т. д. — фазные группы. Цвет показывает фазу, знак +/− — полярность. Нажмите на катушку для точной подсветки.</p>
     </section>
   )
 }
