@@ -16,20 +16,22 @@ export function WindingUnwrap({ result }: Props) {
   const byNumber = useMemo(() => new Map(coils.map((coil) => [coil.number, coil])), [coils])
 
   return (
-    <section className="unwrap-panel">
+    <section className="unwrap-panel" style={{ overflow: 'hidden' }}>
       <div className="section-heading compact">
         <div><span className="eyebrow">WINDING LAYOUT</span><h3>Развёртка обмотки</h3></div>
         <span className="status-dot">{coils.length} КАТУШЕК · ШАГ {step}</span>
       </div>
       <div className="unwrap-toolbar"><span>Физическая укладка катушек по пазам.</span>{selected !== null && <button className="secondary-button" onClick={() => setSelected(null)}>Снять выбор</button>}</div>
-      <div className="unwrap-scroll">
-        <div className="unwrap-canvas" style={{ width, minHeight: height }}>
-          <div className="slot-axis">{Array.from({ length: maxSlot }, (_, index) => <div key={index + 1} className="unwrap-slot" style={{ left: 20 + index * 42 }}><span>{index + 1}</span><i /></div>)}</div>
-          <svg className="unwrap-svg" width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-label="Развёртка обмотки">
+      <div className="unwrap-scroll" style={{ width: '100%', overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch', touchAction: 'pan-x', overscrollBehaviorX: 'contain' }}>
+        <div className="unwrap-canvas" style={{ position: 'relative', width, minWidth: width, minHeight: height }}>
+          <div className="slot-axis" style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none' }}>
+            {Array.from({ length: maxSlot }, (_, index) => <div key={index + 1} className="unwrap-slot" style={{ position: 'absolute', top: 8, left: 20 + index * 42, width: 42, transform: 'translateX(-50%)', textAlign: 'center' }}><span>{index + 1}</span><i style={{ display: 'block', width: 2, height: 12, margin: '5px auto 0', background: '#394454', borderRadius: 2 }} /></div>)}
+          </div>
+          <svg className="unwrap-svg" style={{ position: 'absolute', left: 0, top: 0, zIndex: 2, display: 'block' }} width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-label="Развёртка обмотки">
             {coils.map((coil: Coil, index) => {
               const x1 = 20 + (coil.sideA - 1) * 42, x2 = 20 + (coil.sideB - 1) * 42, y = 70 + index * rowGap
               const color = palette[(coil.number - 1) % palette.length], active = selected === coil.number, dimmed = selected !== null && !active, mid = (x1 + x2) / 2
-              return <g key={coil.number} onClick={() => setSelected(coil.number)} className="unwrap-coil" opacity={dimmed ? .18 : 1}>
+              return <g key={coil.number} onClick={() => setSelected(coil.number)} className="unwrap-coil" opacity={dimmed ? .18 : 1} style={{ cursor: 'pointer', touchAction: 'manipulation' }}>
                 <path d={`M ${x1} ${y} Q ${mid} ${y - 28} ${x2} ${y}`} fill="none" stroke={color} strokeWidth={active ? 9 : 6} strokeLinecap="round" />
                 <circle cx={x1} cy={y} r={active ? 7 : 5} fill={color} /><circle cx={x2} cy={y} r={active ? 7 : 5} fill={color} />
                 <rect x={mid - 33} y={y - 34} width="66" height="20" rx="6" fill="#0b0f15" stroke={color} />
